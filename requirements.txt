@@ -2,3 +2,4 @@ streamlit==1.27.0
 pandas==1.5.3
 PyPDF2==1.26.0
 reportlab==3.6.12
+fpdf2
