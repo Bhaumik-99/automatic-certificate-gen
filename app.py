@@ -1,38 +1,21 @@
 import streamlit as st
 import pandas as pd
 import os
-from PyPDF2 import PdfReader, PdfWriter
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+from pypdf import PdfReader, PdfWriter
+from fpdf import FPDF
 from io import BytesIO
 
 # ===================================
 # CONFIGURATION (change filenames / admin roll as needed)
 # ===================================
-ADMIN_ROLL = "ADMIN"                  # change to your admin roll if needed
+ADMIN_ROLL = "ADMIN"  # change to your admin roll if needed
 TEMPLATE_FILE = "certificate_template.pdf"
-ALLOWED_ROLLS_FILE = "allowed_rolls.csv"   # should contain a column named 'roll'
-USED_ROLLS_FILE = "used_rolls.csv"         # will be created if missing
-LORA_BOLD_FONT = "Lora-Bold.ttf"     # optional font file in project folder
+ALLOWED_ROLLS_FILE = "allowed_rolls.csv"  # should contain a column named 'roll'
+USED_ROLLS_FILE = "used_rolls.csv"  # will be created if missing
+STUDENT_FONT = "Helvetica"  # FPDF only supports a few built-in fonts
 
 st.set_page_config(page_title="🎓 Certificate Portal", page_icon="🎓", layout="centered")
 st.title("🎓 Student Certificate Portal (Roll-based one-time login)")
-
-# ===================================
-# REGISTER CUSTOM FONT
-# ===================================
-try:
-    if os.path.exists(LORA_BOLD_FONT):
-        pdfmetrics.registerFont(TTFont('Lora-Bold', LORA_BOLD_FONT))
-        font_name = 'Lora-Bold'
-    else:
-        st.warning(f"⚠️ {LORA_BOLD_FONT} not found. Using default Helvetica-Bold font.")
-        font_name = 'Helvetica-Bold'
-except Exception as e:
-    st.warning(f"Could not load custom font: {str(e)}. Using default font.")
-    font_name = 'Helvetica-Bold'
 
 # ===================================
 # INITIALIZE SESSION STATE
@@ -141,33 +124,30 @@ else:
         else:
             try:
                 with st.spinner("Generating your certificate..."):
-                    # Create overlay with name
-                    packet = BytesIO()
-                    can = canvas.Canvas(packet, pagesize=letter)
+                    # Create overlay PDF with name
+                    pdf = FPDF()
+                    pdf.add_page()
+                    pdf.set_font(STUDENT_FONT, "B", size=font_size)
+                    pdf.set_text_color(0, 0, 0)
 
-                    # Set custom font (Lora-Bold or fallback to Helvetica-Bold)
-                    can.setFont(font_name, font_size)
-
-                    # Get template dimensions for accurate centering
+                    # Determine the center of the page
+                    # Use template's mediabox width for accurate centering
                     temp_reader = PdfReader(open(TEMPLATE_FILE, "rb"))
-                    template_page = temp_reader.pages[0]
-                    page_width = float(template_page.mediabox.width)
-                    page_height = float(template_page.mediabox.height)
+                    page_width = float(temp_reader.pages[0].mediabox.width)
+                    pdf_size = page_width / 2
+                    # Position the name (adjust y as needed for your template)
+                    y_position = 120
+                    pdf.text(pdf_size - pdf.get_string_width(name) / 2, y_position, name.strip())
 
-                    # Center position for name (adjust y-coordinate as needed)
-                    x = page_width / 2
-                    y = page_height / 2  # Adjust this value based on your template design
-
-                    can.drawCentredString(x, y, name.strip())
-                    can.save()
+                    # Save overlay to memory
+                    overlay_stream = BytesIO()
+                    pdf.output(overlay_stream)
+                    overlay_stream.seek(0)
+                    overlay_pdf = PdfReader(overlay_stream)
 
                     # Merge overlay with base certificate
-                    packet.seek(0)
-                    overlay_pdf = PdfReader(packet)
                     existing_pdf = PdfReader(open(TEMPLATE_FILE, "rb"))
                     output = PdfWriter()
-
-                    # Merge pages
                     page = existing_pdf.pages[0]
                     page.merge_page(overlay_pdf.pages[0])
                     output.add_page(page)
