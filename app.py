@@ -4,7 +4,7 @@ import os
 from pypdf import PdfReader, PdfWriter 
 from fpdf import FPDF
 from io import BytesIO
- 
+  
 # ===================================
 # CONFIGURATION (change filenames / admin roll as needed)
 # ===================================
