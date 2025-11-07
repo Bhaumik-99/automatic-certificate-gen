@@ -14,7 +14,7 @@ ALLOWED_ROLLS_FILE = "allowed_rolls.csv"  # should contain a column named 'roll'
 USED_ROLLS_FILE = "used_rolls.csv"  # will be created if missing
 STUDENT_FONT = "Helvetica"  # FPDF only supports a few built-in fonts
 
-st.set_page_config(page_title="🎓 Certificate Portal", page_icon="🎓", layout="centered")
+st.set_page_config(page_title="🎓 Certificate Portal", page_icon="🎓", layout="centered") 
 st.title("🎓 Student Certificate Portal (Roll-based one-time login)")
 
 # ===================================
