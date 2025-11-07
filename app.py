@@ -10,7 +10,7 @@ from io import BytesIO
 # ===================================
 ADMIN_ROLL = "ADMIN"  # change to your admin roll if needed
 TEMPLATE_FILE = "certificate_template.pdf"
-ALLOWED_ROLLS_FILE = "allowed_rolls.csv"  # should contain a column named 'roll'
+ALLOWED_ROLLS_FILE = "allowed_rolls.csv"  # should contain a column named 'roll' 
 USED_ROLLS_FILE = "used_rolls.csv"  # will be created if missing
 STUDENT_FONT = "Helvetica"  # FPDF only supports a few built-in fonts
 
