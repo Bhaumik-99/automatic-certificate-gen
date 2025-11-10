@@ -7,7 +7,7 @@ from io import BytesIO
   
 # ===================================
 # CONFIGURATION (change filenames / admin roll as needed)
-# ===================================
+# =================================== 
 ADMIN_ROLL = "ADMIN"  # change to your admin roll if needed
 TEMPLATE_FILE = "certificate_template.pdf"    
 ALLOWED_ROLLS_FILE = "allowed_rolls.csv"  # should contain a column named 'roll' 
